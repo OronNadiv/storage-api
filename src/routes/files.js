@@ -1,8 +1,5 @@
-const path = require('path')
-const LOG_PREFIX = `"${path.basename(__filename)}":`
-const log = require('../logger')
-const verbose = log.verbose.bind(log, LOG_PREFIX)
-const error = log.error.bind(log, LOG_PREFIX)
+const verbose = require('debug')('ha:routes:files:verbose')
+const error = require('debug')('ha:routes:files:info')
 
 import _ from 'underscore'
 import {Router} from 'express'
@@ -99,21 +96,21 @@ export default () => {
       readStream = fs.createReadStream(file.path)
       readStream.on('close', () => {
         fs.unlink(file.path, err =>
-            err
-              ? error(`Error while calling unlink.  req.files: ${req.files}, file: ${file}, file.path: ${file.path}, err: ${err}`)
-              : verbose(`File deleted successfully.  file.path: ${file.path}`)
-          )
+          err
+            ? error(`Error while calling unlink.  req.files: ${req.files}, file: ${file}, file.path: ${file.path}, err: ${err}`)
+            : verbose(`File deleted successfully.  file.path: ${file.path}`)
+        )
       })
 
-        // todo: do it in a transaction.
+      // todo: do it in a transaction.
       return File.forge()
-          .save({
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            group_id: req.client.group_id,
-            read_stream: readStream
-          }, {by: req.client})
+        .save({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          group_id: req.client.group_id,
+          read_stream: readStream
+        }, {by: req.client})
     })
       .then(res.sendStatus.bind(res, 201))
       .catch(next)

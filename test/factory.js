@@ -1,8 +1,11 @@
 import {Factory} from 'factory-girl'
 import BookshelfAdapter from 'factory-girl-bookshelf'
 import Chance from 'chance'
+import Promise from 'bluebird'
+import group from './factories/group'
+import login from './factories/login'
 import user from './factories/user'
-import 'should'
+require('should')
 
 const chance = new Chance()
 
@@ -22,13 +25,12 @@ BookshelfAdapter.prototype.destroy = (doc, Model, cb) => {
   return doc.destroy().nodeify(cb)
 }
 
-export default () => {
-  const factory = new Factory()
+const factory = new Factory()
 
-  factory.setAdapter(new BookshelfAdapter())
-  factory.chance = chance
+factory.setAdapter(new BookshelfAdapter())
+factory.chance = chance
+group(factory)
+login(factory)
+user(factory)
 
-  user(factory)
-
-  return factory.promisify(Promise)
-}
+module.exports = factory.promisify(Promise)
