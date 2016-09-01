@@ -1,6 +1,5 @@
-# Home Automation - Storage Backend API
-The storage server manages the upload (store) and download of images taken by the cameras.
-The images are stores on [Amazon AWS][aws-url] S3.
+# Home Automation - Storage API
+Back-end server that manages [Amazon AWS][aws-url] S3 storage. It provides api to store and fetch the camera photos.
 
 [![JavaScript Style Guide][standard-image]][standard-url]
 [![Dependencies][dependencies-image]][dependencies-url]
