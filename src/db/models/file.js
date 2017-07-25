@@ -1,5 +1,3 @@
-const verbose = require('debug')('ha:db:models:file:verbose')
-
 import {createClient} from 'redis'
 import aws from 'aws-sdk'
 import bookshelf from '../bookshelf'
@@ -7,6 +5,8 @@ import config from '../../config'
 import emitter from 'socket.io-emitter'
 import Promise from 'bluebird'
 import uuid from 'uuid'
+
+const verbose = require('debug')('ha:db:models:file:verbose')
 
 aws.config.update({
   accessKeyId: config.aws.accessKeyId,
@@ -23,7 +23,7 @@ export default bookshelf.Model.extend({
   initialize () {
     this.on('creating', model => {
       const bucket = 'nadiv-home-automation'
-      const key = `${model.get('group_id')}_${uuid.v4().replace(/\-/g)}_${model.get('name')}`
+      const key = `${model.get('group_id')}_${uuid.v4().replace(/-/g)}_${model.get('name')}`
 
       // Documentation: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html
       return s3.uploadAsync({

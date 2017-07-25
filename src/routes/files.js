@@ -1,12 +1,12 @@
-const verbose = require('debug')('ha:routes:files:verbose')
-const error = require('debug')('ha:routes:files:info')
-
 import _ from 'underscore'
 import {Router} from 'express'
 import File from '../db/models/file'
 import fs from 'fs'
 import Multipart from 'connect-multiparty'
 import Promise from 'bluebird'
+
+const verbose = require('debug')('ha:routes:files:verbose')
+const error = require('debug')('ha:routes:files:info')
 
 const multipart = Multipart()
 const router = new Router()
