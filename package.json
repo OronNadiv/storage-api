@@ -40,7 +40,7 @@
     "knex": "^0.11",
     "knex-pg-customschema": "^1",
     "pg": "^6",
-    "socket.io-emitter": "^3",
+    "socket.io-emitter": "^1",
     "underscore": "^1",
     "uuid": "^2"
   },
