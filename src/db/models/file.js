@@ -46,7 +46,8 @@ export default bookshelf.Model.extend({
         system: 'STORAGE',
         type: 'FILE_CREATED',
         payload: model.toJSON(),
-        token: options.by.token
+        token: options.by.token,
+        uuid: 'storage-api'
       })
     })
   },
