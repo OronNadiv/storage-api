@@ -1,10 +1,10 @@
-import {createClient} from 'redis'
 import aws from 'aws-sdk'
 import bookshelf from '../bookshelf'
 import config from '../../config'
-import emitter from 'socket.io-emitter'
 import Promise from 'bluebird'
 import uuid from 'uuid'
+
+const {publish} = require('home-automation-pubnub').Publisher
 
 const verbose = require('debug')('ha:db:models:file:verbose')
 
@@ -38,21 +38,16 @@ export default bookshelf.Model.extend({
         })
     })
     this.on('created', (model, attrs, options) => {
-      let client = createClient(config.redisUrl)
+      verbose('sending message to client. group_id:', options.by.group_id)
 
-      return Promise
-        .try(() => {
-          verbose('sending message to client. group_id:', options.by.group_id)
-
-          const io = emitter(client)
-          io.of(`/${options.by.group_id}-trusted`).to('storage').emit('FILE_CREATED', model.toJSON())
-        })
-        .finally(() => {
-          if (client) {
-            client.quit()
-            client = null
-          }
-        })
+      return publish({
+        groupId: options.by.group_id,
+        isTrusted: true,
+        system: 'STORAGE',
+        type: 'FILE_CREATED',
+        payload: model.toJSON(),
+        token: options.by.token
+      })
     })
   },
 
