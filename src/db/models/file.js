@@ -51,7 +51,7 @@ export default bookshelf.Model.extend({
       return Promise
         .resolve(jwtGenerator.makeToken({
           subject: `File created for group ${options.by.group_id}`,
-          audience: 'urn:home-automation/alarm',
+          audience: 'urn:home-automation/*',
           payload: {id, group_id}
         }))
         .then((token) => {
