@@ -60,7 +60,7 @@ config.skipSSL = process.env.SKIP_SSL && process.env.SKIP_SSL.toUpperCase() === 
 config.uiUrl = process.env.UI_URL || 'http://localhost:3000'
 if (!config.uiUrl) {
   error(
-    'Login URL could not be found in the environment variable.  Please set \'UI_URL\'.'
+    'UI URL could not be found in the environment variable.  Please set \'UI_URL\'.'
   )
   process.exit(1)
 }

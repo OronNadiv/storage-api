@@ -60,7 +60,7 @@ export default bookshelf.Model.extend({
             system: 'STORAGE',
             type: 'FILE_CREATED',
             payload: model.toJSON(),
-            token: token,
+            token,
             uuid: 'storage-api'
           })
         })
