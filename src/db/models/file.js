@@ -4,6 +4,13 @@ import config from '../../config'
 import Promise from 'bluebird'
 import uuid from 'uuid'
 
+const JWTGenerator = require('jwt-generator')
+const jwtGenerator = new JWTGenerator({
+  loginUrl: config.loginUrl,
+  privateKey: config.privateKey,
+  useRetry: false,
+  issuer: 'urn:home-automation/storage'
+})
 const {publish} = require('home-automation-pubnub').Publisher
 
 const verbose = require('debug')('ha:db:models:file:verbose')
@@ -40,15 +47,23 @@ export default bookshelf.Model.extend({
     this.on('created', (model, attrs, options) => {
       verbose('sending message to client. group_id:', options.by.group_id)
 
-      return publish({
-        groupId: options.by.group_id,
-        isTrusted: true,
-        system: 'STORAGE',
-        type: 'FILE_CREATED',
-        payload: model.toJSON(),
-        token: options.by.token,
-        uuid: 'storage-api'
-      })
+      return Promise
+        .resolve(jwtGenerator.makeToken({
+          subject: `File created for group ${options.by.group_id}`,
+          audience: 'urn:home-automation/alarm',
+          payload: options.by
+        }))
+        .then((token) => {
+          return publish({
+            groupId: options.by.group_id,
+            isTrusted: true,
+            system: 'STORAGE',
+            type: 'FILE_CREATED',
+            payload: model.toJSON(),
+            token: token,
+            uuid: 'storage-api'
+          })
+        })
     })
   },
 

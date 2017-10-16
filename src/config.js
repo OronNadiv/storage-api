@@ -32,6 +32,14 @@ if (!config.aws.secretAccessKey) {
   process.exit(1)
 }
 
+config.loginUrl = process.env.LOGIN_URL || (config.production ? null : 'http://localhost:3001')
+if (!config.loginUrl) {
+  error(
+    'Login URL could not be found in the environment variable.  Please set \'LOGIN_URL\'.'
+  )
+  process.exit(1)
+}
+
 config.port = process.env.PORT || 3006
 
 config.postgres = process.env.DATABASE_URL || 'postgres://postgres:@localhost/home_automation'
@@ -40,6 +48,11 @@ config.postgresPool = {
   max: parseInt(process.env.POSTGRESPOOLMAX || 10, 10),
   log: process.env.POSTGRESPOOLLOG === 'true',
   afterCreate: (connection, cb) => connection.query(`SET SESSION SCHEMA 'storage';`, cb)
+}
+config.privateKey = process.env.PRIVATE_KEY || (config.production ? null : fs.readFileSync(path.join(__dirname, '../test/private_key.pem')))
+if (!config.privateKey) {
+  error('Private key could not be found in the environment variable.  Please set \'PRIVATE_KEY\'.')
+  process.exit(1)
 }
 
 config.skipSSL = process.env.SKIP_SSL && process.env.SKIP_SSL.toUpperCase() === 'TRUE'

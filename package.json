@@ -39,6 +39,7 @@
     "express": "^4.5",
     "home-automation-pubnub": "^0.4.3",
     "jsonwebtoken": "^8.0.1",
+    "jwt-generator": "^3.0.0",
     "knex": "^0.13.0",
     "pg": "^7.3.0",
     "underscore": "^1",
