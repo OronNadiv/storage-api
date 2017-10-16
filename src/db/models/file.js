@@ -47,11 +47,12 @@ export default bookshelf.Model.extend({
     this.on('created', (model, attrs, options) => {
       verbose('sending message to client. group_id:', options.by.group_id)
 
+      const {id, group_id} = options.by
       return Promise
         .resolve(jwtGenerator.makeToken({
           subject: `File created for group ${options.by.group_id}`,
           audience: 'urn:home-automation/alarm',
-          payload: options.by
+          payload: {id, group_id}
         }))
         .then((token) => {
           return publish({
