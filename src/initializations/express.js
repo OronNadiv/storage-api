@@ -25,7 +25,6 @@ export default {
       app.use(cors({
         origin: config.uiUrl,
         credentials: true,
-        exposedHeaders: ['X-Total-Count'],
         maxAge: 10 * 60
       }))
       app.use(redirectToHttps)
