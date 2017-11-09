@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import {Router} from 'express'
+import { Router } from 'express'
 import File from '../db/models/file'
 import fs from 'fs'
 import Multipart from 'connect-multiparty'
@@ -12,39 +12,6 @@ const multipart = Multipart()
 const router = new Router()
 
 export default () => {
-  router.get('/files/:file_id', (req, res, next) => {
-    if (!req.client.is_trusted) {
-      return res.sendStatus(403)
-    }
-
-    const options = {by: req.client}
-
-    File.forge()
-      .query({
-        where: {
-          id: req.params.file_id,
-          group_id: req.client.group_id,
-          is_deleted: false
-        }
-      })
-      .fetch(options)
-      .then(file => {
-        if (!file) {
-          return res.sendStatus(404)
-        }
-
-        res.writeHead(200, {
-          'Content-disposition': `attachment; filename=${file.get('name')}`
-        })
-
-        const readStream = file.getReadStream()
-
-        readStream.pipe(res)
-        readStream.on('error', next)
-      })
-      .catch(next)
-  })
-
   router.get('/files', (req, res, next) => {
     if (!req.client.is_trusted) {
       return res.sendStatus(403)
@@ -64,7 +31,8 @@ export default () => {
     if (limit < 1 || limit > MAX_LIMIT) {
       limit = MAX_LIMIT
     }
-    File.forge()
+    File
+      .forge()
       .query(qb => {
         qb.where('group_id', '=', options.by.group_id)
         qb.where('is_deleted', '=', false)
@@ -78,8 +46,15 @@ export default () => {
         qb.limit(limit)
       })
       .fetchAll(options)
-      .call('toJSON')
-      .then(res.json.bind(res))
+      .get('models')
+      .map(file => {
+        return file
+          .setDownloadUrl(options)
+          .then((file) => file.toJSON())
+      })
+      .then(files => {
+        res.json(files)
+      })
       .catch(next)
   })
 

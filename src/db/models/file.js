@@ -3,6 +3,7 @@ import bookshelf from '../bookshelf'
 import config from '../../config'
 import Promise from 'bluebird'
 import uuid from 'uuid'
+import moment from 'moment'
 
 const JWTGenerator = require('jwt-generator')
 const jwtGenerator = new JWTGenerator({
@@ -49,12 +50,15 @@ export default bookshelf.Model.extend({
 
       const {id, group_id} = options.by
       return Promise
-        .resolve(jwtGenerator.makeToken({
-          subject: `File created for group ${options.by.group_id}`,
-          audience: 'urn:home-automation/*',
-          payload: {id, group_id}
-        }))
-        .then((token) => {
+        .all([
+          jwtGenerator.makeToken({
+            subject: `File created for group ${options.by.group_id}`,
+            audience: 'urn:home-automation/*',
+            payload: {id, group_id}
+          }),
+          model.setDownloadUrl(options)
+        ])
+        .spread((token) => {
           return publish({
             groupId: options.by.group_id,
             isTrusted: true,
@@ -68,10 +72,21 @@ export default bookshelf.Model.extend({
     })
   },
 
-  getReadStream () {
-    const bucket = this.get('bucket')
-    const key = this.get('key')
+  setDownloadUrl (options) {
+    const exp = options.by.decoded.exp
+    const expires = moment.unix(exp).diff(moment(), 'seconds')
+    const params = {
+      Bucket: this.get('bucket'),
+      Key: this.get('key'),
+      Expires: expires
+    }
 
-    return s3.getObject({Bucket: bucket, Key: key}).createReadStream()
+    const self = this
+    return s3
+      .getSignedUrlAsync('getObject', params)
+      .then(url => {
+        self.set('downloadUrl', url)
+      })
+      .return(this)
   }
 })

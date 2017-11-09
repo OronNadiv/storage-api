@@ -30,9 +30,10 @@ export default (req, res, next) => {
     }
 
     // token is valid
-
+    const decoded = jwt.decode(token)
     req.client = payload
     req.client.token = token
+    req.client.decoded = decoded
     return next()
   })
 }
