@@ -1,4 +1,4 @@
-#### DEPRECATED.  Merged with [Camera-api][camera-url]  
+#### DEPRECATED.  Merged with [Camera-api][camera-url]
 
 # Home Automation - Storage API
 Back-end server that manages [Amazon AWS][aws-url] S3 storage. It provides api to store and fetch the camera photos.
